@@ -1,1 +1,2 @@
-web: gunicorn empleados_app.wsgi
+web: gunicorn empleados_app.wsgi --log-file -
+
