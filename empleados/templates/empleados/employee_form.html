@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ accion }} Empleado</title>
+    <link 
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" 
+      rel="stylesheet"
+    >
+    <link 
+      rel="stylesheet" 
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" 
+    >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      body {
+        background: linear-gradient(120deg, #f5f7fa, #c3cfe2); 
+        min-height: 100vh;
+        margin: 0;
+        padding: 0;
+      }
+      .fade-in { animation: fadeIn 0.5s ease-in-out; }
+      @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+      .navbar-custom { background: #212529; border-bottom: 2px solid #ffc107; }
+      .navbar-brand { font-weight: bold; letter-spacing: 1px; }
+      .container-custom {
+        max-width: 600px;
+        background: #ffffffcc;
+        box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
+        border-radius: 12px;
+        margin-top: 2rem;
+        padding: 2rem;
+      }
+      .btn-custom {
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        color: white;
+        font-weight: bold;
+        border-radius: 25px;
+        transition: transform 0.2s;
+      }
+      .btn-custom:hover { transform: scale(1.03);  color: white;}
+      .btn-secondary { border-radius: 25px; }
+      .text-danger { font-size: 0.9rem; }
+      #cedula-error, #fecha-error { display: none; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
+  <div class="container">
+    <a class="navbar-brand" href="#">
+      <i class="bi bi-person-fill me-2"></i>MiAplicación
+    </a>
+  </div>
+</nav>
+
+<div class="container container-custom fade-in">
+    <div class="card p-4">
+      <h2 class="text-center mb-4">
+        {% if accion == 'Editar' %}
+          <i class="bi bi-pencil-square me-2"></i>Editar Empleado
+        {% else %}
+          <i class="bi bi-person-plus-fill me-2"></i>Crear Empleado
+        {% endif %}
+      </h2>
+
+        {% if mensaje_exito %}
+            <div class="alert alert-success text-center" id="success-message">
+                {{ mensaje_exito }}
+            </div>
+        {% endif %}
+
+        {% if errores_formulario %}
+            <div class="alert alert-danger">
+                <ul>
+                    {% for field, error_list in errores_formulario.items %}
+                        {% for error in error_list %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+        <form method="POST" id="employee-form">
+            {% csrf_token %}
+            
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Nombre Completo</label>
+                <input type="text" name="nombre" class="form-control" required value="{{ form.nombre.value|default:'' }}">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Cédula</label>
+                <input type="text" name="cedula" id="cedula" class="form-control" required minlength="6" maxlength="15" value="{{ form.cedula.value|default:'' }}">
+                <small class="text-danger" id="cedula-error">Solo se permiten números.</small>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Fecha de Nacimiento</label>
+                <input type="date" name="fecha_nacimiento" id="fecha_nacimiento" class="form-control" required value="{{ form.fecha_nacimiento.value|date:'Y-m-d' }}">
+                <small class="text-danger" id="fecha-error">La fecha no puede ser futura.</small>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Email</label>
+                <input type="email" name="email" class="form-control" required value="{{ form.email.value|default:'' }}">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Número de Teléfono</label>
+                <input type="tel" name="numero_telefono" class="form-control" required pattern="\d+" value="{{ form.numero_telefono.value|default:'' }}">
+            </div>
+
+            <button type="submit" class="btn btn-custom w-100 mb-2">
+              <i class="bi bi-check-circle-fill me-1"></i>{{ accion }}
+            </button>
+            <a href="{% url 'list_employees' %}" class="btn btn-secondary w-100">
+              <i class="bi bi-arrow-left-circle me-1"></i>Volver
+            </a>
+        </form>
+    </div>
+</div>
+
+<script>
+    setTimeout(() => { 
+        let successMessage = document.getElementById("success-message");
+        if (successMessage) successMessage.style.display = "none";
+    }, 3000);
+
+    document.getElementById("cedula").addEventListener("input", function() {
+        this.value = this.value.replace(/\D/g, '');
+        document.getElementById("cedula-error").style.display = "none";
+    });
+
+    function setMaxDate() {
+        let today = new Date().toISOString().split("T")[0];
+        document.getElementById("fecha_nacimiento").setAttribute("max", today);
+    }
+    setMaxDate();
+
+    document.getElementById("fecha_nacimiento").addEventListener("input", function () {
+        let fechaSeleccionada = new Date(this.value);
+        let hoy = new Date();
+        document.getElementById("fecha-error").style.display = fechaSeleccionada > hoy ? "inline" : "none";
+        if (fechaSeleccionada > hoy) this.value = "";
+    });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

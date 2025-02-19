@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Lista de Empleados</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style>
+      body {
+        background: linear-gradient(120deg, #f5f7fa, #c3cfe2);
+        min-height: 100vh;
+      }
+
+      .navbar-custom {
+        background: #212529;
+        border-bottom: 2px solid #ffc107;
+      }
+
+      .container-custom {
+        background: #ffffffcc;
+        border-radius: 10px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+        margin-top: 2rem;
+      }
+
+      .table thead {
+        background: #ffc107;
+      }
+
+      .btn-rounded {
+        border-radius: 20px;
+      }
+
+      .form-label {
+        font-weight: 600;
+      }
+
+      /* Alinear los elementos del formulario en una sola fila */
+      .filter-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        align-items: end;
+      }
+
+      .filter-container .form-group {
+        flex: 1 1 100%;
+      }
+
+      @media (min-width: 768px) {
+        .filter-container .form-group {
+          flex: 1;
+        }
+        .filter-container .search-group {
+          flex: 2;
+        }
+        .filter-container .btn-group {
+          flex: 0 0 auto;
+        }
+      }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
+  <div class="container">
+    <a class="navbar-brand" href="#"><i class="bi bi-people-fill me-2"></i>MiEmpresa</a>
+    <div class="ms-auto">
+      <a href="{% url 'create_employee' %}" class="btn btn-success me-2 btn-rounded">
+        <i class="bi bi-person-plus-fill"></i> Crear Empleado
+      </a>
+      <a href="{% url 'logout' %}" class="btn btn-danger btn-rounded">
+        <i class="bi bi-box-arrow-left"></i> Cerrar Sesión
+      </a>
+    </div>
+  </div>
+</nav>
+
+<div class="container container-custom">
+  <h2 class="fw-bold mb-4 text-center">Lista de Empleados</h2>
+
+  <form method="GET" class="filter-container mb-4">
+    <div class="form-group search-group">
+      <label class="form-label">Buscar:</label>
+      <div class="input-group">
+        <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+        <input type="text" name="q" class="form-control" placeholder="Buscar..." value="{{ search_query }}">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Buscar por:</label>
+      <select name="filter_by" class="form-select">
+        <option value="nombre" {% if filter_by == 'nombre' %}selected{% endif %}>Nombre</option>
+        <option value="cedula" {% if filter_by == 'cedula' %}selected{% endif %}>Cédula</option>
+        <option value="email" {% if filter_by == 'email' %}selected{% endif %}>Email</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Ordenar por:</label>
+      <select name="order_by_param" class="form-select">
+        <option value="nombre" {% if order_by_param == 'nombre' %}selected{% endif %}>Nombre</option>
+        <option value="cedula" {% if order_by_param == 'cedula' %}selected{% endif %}>Cédula</option>
+        <option value="email" {% if order_by_param == 'email' %}selected{% endif %}>Email</option>
+        <option value="fecha_nacimiento" {% if order_by_param == 'fecha_nacimiento' %}selected{% endif %}>Fecha Nacimiento</option>
+      </select>
+    </div>
+
+    <div class="btn-group">
+      <button type="submit" class="btn btn-primary btn-rounded mt-2">
+        <i class="bi bi-funnel-fill"></i> Buscar
+      </button>
+    </div>
+  </form>
+
+  <div class="table-responsive">
+    <table class="table table-striped table-hover align-middle">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Cédula</th>
+          <th>Email</th>
+          <th>Fecha de Nacimiento</th>
+          <th>Teléfono</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for emp in employees %}
+        <tr>
+          <td>{{ emp.nombre }}</td>
+          <td>{{ emp.cedula }}</td>
+          <td>{{ emp.email }}</td>
+          <td>{{ emp.fecha_nacimiento|date:"Y/m/d" }}</td>
+          <td>{{ emp.numero_telefono }}</td>
+          <td>
+            <a href="{% url 'edit_employee' emp.id %}" class="btn btn-warning btn-sm btn-rounded">
+              <i class="bi bi-pencil-square"></i> Editar
+            </a>
+          </td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="6" class="text-center text-muted">No se encontraron empleados.</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+</body>
+</html>
