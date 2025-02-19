@@ -6,7 +6,7 @@ class Employee(models.Model):
     cedula = models.CharField(
         max_length=15,
         unique=True,
-        validators=[RegexValidator(regex='^\d+$', message='La cédula solo puede contener números.')],
+        validators=[RegexValidator(regex=r'^\d+$', message='La cédula solo puede contener números.')],
         error_messages={
             'unique': "Ya existe un empleado con esta cédula.",
             'blank': "Este campo no puede estar vacío.",
